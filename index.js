@@ -28,7 +28,8 @@ app.use(
 
 app.use(cors());
 app.use(express.json());
-app.use(helmet()); // Seding HTTP Headers Securely
+// Sending HTTP Headers Securely
+app.use(helmet()); 
 app.use(passport.initialize());
 app.use(passport.session());
 
