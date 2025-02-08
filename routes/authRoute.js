@@ -8,11 +8,14 @@ router.get(
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
+// Redirect /login to Google authentication
+router.get("/login", (req, res) => {
+  res.redirect("/auth/google");
+});
+
 router.get(
   "/google/callback",
-  passport.authenticate("google", { 
-    successRedirect: "/home"
-   }),
+  passport.authenticate("google", { successRedirect: "/home" }),
   (req, res) => {
     res.json({ token: req.user.token });
   }
