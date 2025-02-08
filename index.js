@@ -36,13 +36,14 @@ app.use(passport.session());
 // API Routes
 app.use("/auth", authRoute);
 app.use("/api", apiRoute);
+app.get("/home", checkAuthenticated, (req, res) => {
+  res.send(`<h1>Welcome to URL Shortener, ${req?.user?.name}!</h1> \n</p>`);
+});
 
 // DB Connection
 connectDB();
 
-app.get("/home", checkAuthenticated, (req, res) => {
-  res.send(`<h1>Welcome to URL Shortener, ${req?.user?.name}!</h1> \n</p>`);
-});
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on port: ${port}`));
