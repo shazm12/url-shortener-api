@@ -41,7 +41,7 @@ app.use("/api", apiRoute);
 connectDB();
 
 app.get("/home", checkAuthenticated, (req, res) => {
-  res.send(req?.user);
+  res.send(`<h1>Welcome to URL Shortener, ${req?.user?.name}!</h1> \n</p>`);
 });
 
 const port = process.env.PORT || 3000;
