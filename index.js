@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import "./auth/passport.js"; // Ensure ES module compatibility
 import { checkAuthenticated } from "./auth/authMiddleware.js";
 import authRoute from "./routes/authRoute.js";
+import apiRoute from "./routes/apiRoute.js";
 import connectDB from "./utils/db.js";
 import helmet from "helmet";
 
@@ -31,7 +32,11 @@ app.use(helmet()); // Seding HTTP Headers Securely
 app.use(passport.initialize());
 app.use(passport.session());
 
+// API Routes
 app.use("/auth", authRoute);
+app.use("/api", apiRoute);
+
+// DB Connection
 connectDB();
 
 app.get("/home", checkAuthenticated, (req, res) => {
