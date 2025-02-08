@@ -3,7 +3,8 @@ import express from "express";
 import { base10ToBase62, fnv1aHash } from "../utils/encoding.js";
 import Url from "../models/Url.js";
 import { checkAuthenticated } from "../auth/authMiddleware.js";
-
+import userAgent from "user-agent-parser";
+import UrlClick from "../models/UrlClick.js";
 const router = express.Router();
 
 router.post("/shorten", checkAuthenticated, async (req, res) => {
@@ -68,11 +69,22 @@ router.get("/shorten/:alias", async (req, res) => {
     const urlObj = await Url.findOne({ alias });
 
     if (!urlObj) {
-      return res.status(404).json({ error: "Short URL not found" });
+      return res.status(404).json({ error: "URL not found" });
     }
 
-    const visitorId = req.session.id || req.ip;
+    const ua = userAgent(req.headers["user-agent"]);
+    const os = ua.os.name;
+    const device = ua.device.type || "Desktop";
 
+    const urlClick = new UrlClick({
+      urlId: urlObj._id,
+      userIp: req.ip,
+      userAgent: req.headers["user-agent"],
+      os,
+      device,
+    });
+
+    await urlClick.save();
     res.redirect(urlObj?.longUrl);
   } catch (err) {
     res.status(500).send({ error: err });
