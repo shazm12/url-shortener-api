@@ -27,10 +27,10 @@ export const fnv1aHash = (uuid) => {
 };
 
 export function parseUserAgent(userAgentString) {
-  const parsedUA = useragent.parse(userAgentString);
+  const parsedUA = useragent(userAgentString);
 
   return {
-    os: parsedUA.os.name || "Unknown",
+    os: parsedUA.os.name || "unknown",
     device: parsedUA.device.type || "desktop",
   };
 }
