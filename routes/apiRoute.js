@@ -1,7 +1,8 @@
 import express from "express";
 import { checkAuthenticated, checkResourceOwnership } from "../auth/authMiddleware.js";
 import {
-  getAnalyticsData,
+  getAnalyticsDataByAlias,
+  getAnalyticsDataOverallByUserId,
   getShortenUrlDataAndRedirectToLongUrl,
   postShortenUrlData,
 } from "../controller/apiController.js";
@@ -11,7 +12,8 @@ const router = express.Router();
 router.post("/shorten", checkAuthenticated, postShortenUrlData);
 
 router.get("/shorten/:alias", getShortenUrlDataAndRedirectToLongUrl);
-router.get("/shorten/:alias", getShortenUrlDataAndRedirectToLongUrl);
-router.get("/analytics/:alias", checkAuthenticated, checkResourceOwnership, getAnalyticsData);
+router.get("/analytics/overall", checkAuthenticated, getAnalyticsDataOverallByUserId);
+router.get("/analytics/:alias", checkAuthenticated, checkResourceOwnership, getAnalyticsDataByAlias);
+
 
 export default router;
