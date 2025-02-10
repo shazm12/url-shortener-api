@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuthenticated } from "../auth/authMiddleware.js";
+import { checkAuthenticated, checkResourceOwnership } from "../auth/authMiddleware.js";
 import {
   getAnalyticsData,
   getShortenUrlDataAndRedirectToLongUrl,
@@ -12,6 +12,6 @@ router.post("/shorten", checkAuthenticated, postShortenUrlData);
 
 router.get("/shorten/:alias", getShortenUrlDataAndRedirectToLongUrl);
 router.get("/shorten/:alias", getShortenUrlDataAndRedirectToLongUrl);
-router.get("/analytics/:alias", checkAuthenticated, getAnalyticsData);
+router.get("/analytics/:alias", checkAuthenticated, checkResourceOwnership, getAnalyticsData);
 
 export default router;

@@ -54,7 +54,7 @@ export const postShortenUrlData = async (req, res) => {
       // Duplicate key error
       return res
         .status(400)
-        .send({ error: "Alias already exists!", systemErr: err });
+        .send({ error: "Alias already exists!" });
     }
     res.status(500).send({ error: err.message || "Internal server error" });
   }
@@ -63,7 +63,6 @@ export const postShortenUrlData = async (req, res) => {
 export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
   try {
     const { alias } = req.params;
-    console.log(alias);
     const urlObj = await Url.findOne({ alias });
 
     if (!urlObj) {
