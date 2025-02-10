@@ -2,7 +2,14 @@ import { v4 as uuidv4 } from "uuid";
 import { fnv1aHash, base10ToBase62, parseUserAgent } from "../utils/utils.js";
 import Url from "../models/Url.js";
 import UrlClick from "../models/UrlClick.js";
-import moment from "moment";
+import {
+  getUrlAnalyticsDataOverallByUserId,
+  getClicksByDate,
+  getDeviceAnalyticsArray,
+  getOsAnalyticsArray,
+  getTotalClicks,
+  getUniqueUsers,
+} from "../utils/dbUtils.js";
 
 export const postShortenUrlData = async (req, res) => {
   const { longUrl, customAlias, topic } = req.body;
@@ -52,11 +59,11 @@ export const postShortenUrlData = async (req, res) => {
   } catch (err) {
     if (err.code === 11000) {
       // Duplicate key error
-      return res
-        .status(400)
-        .send({ error: "Alias already exists!" });
+      return res.status(400).send({ error: "Alias already exists!" });
     }
-    res.status(500).send({ error: err.message || "Internal server error" });
+    res
+      .status(500)
+      .send({ error: "Failed to create Url Data", message: err.message });
   }
 };
 
@@ -83,11 +90,13 @@ export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
     res.redirect(urlObj?.longUrl);
   } catch (err) {
     console.log(err);
-    res.status(500).send({ error: err || "Internal Server Error" });
+    res
+      .status(500)
+      .send({ error: "Failed to get Url Data", message: err.message });
   }
 };
 
-export const getAnalyticsData = async (req, res) => {
+export const getAnalyticsDataByAlias = async (req, res) => {
   try {
     const { alias } = req.params;
 
@@ -97,79 +106,15 @@ export const getAnalyticsData = async (req, res) => {
       return res.status(404).json({ message: "URL not found" });
     }
 
-    const totalClicks = await UrlClick.countDocuments({ urlId: url._id });
-    const uniqueUsers = await UrlClick.aggregate([
-        { $match: { urlId: url._id } },
-        {
-          $group: {
-            _id: "$userIp" 
-          }
-        },
-        { $count: "uniqueUserCount" }
-      ]);
-      
-    // Extract the count (aggregation returns an array)
-    const uniqueUserCount = uniqueUsers[0]?.uniqueUserCount || 0;
-
-    const sevenDaysBack = moment().subtract(7, "days").startOf("day");
-
-    const clicksByDate = await UrlClick.aggregate([
-      {
-        $match: {
-          urlId: url._id,
-          timestamp: { $gte: sevenDaysBack.toDate() },
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
-          clickCount: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-
-    const osAnalytics = await UrlClick.aggregate([
-      { $match: { urlId: url._id } },
-      {
-        $group: {
-          _id: "$os",
-          uniqueClicks: { $sum: 1 },
-          uniqueUsers: { $addToSet: "$userIp" },
-        },
-      },
-      {
-        $project: {
-          osName: "$_id",
-          uniqueClicks: 1,
-          uniqueUsers: { $size: "$uniqueUsers" },
-        },
-      },
-    ]);
-
-    const deviceAnalytics = await UrlClick.aggregate([
-      { $match: { urlId: url._id } },
-      {
-        $group: {
-          _id: "$device",
-          uniqueClicks: { $sum: 1 },
-          uniqueUsers: { $addToSet: "$userIp" },
-        },
-      },
-      {
-        $project: {
-          deviceName: "$_id",
-          uniqueClicks: 1,
-          uniqueUsers: { $size: "$uniqueUsers" },
-        },
-      },
-    ]);
+    const totalClicks = await getTotalClicks(url._id);
+    const uniqueUsers = await getUniqueUsers(url._id);
+    const clicksByDate = await getClicksByDate(url._id);
+    const osAnalytics = await getOsAnalyticsArray(url._id);
+    const deviceAnalytics = await getDeviceAnalyticsArray(url._id);
 
     res.status(200).json({
       totalClicks,
-      uniqueUsers: uniqueUserCount,
+      uniqueUsers,
       clicksByDate: clicksByDate.map((item) => ({
         date: item._id,
         clickCount: item.clickCount,
@@ -181,5 +126,21 @@ export const getAnalyticsData = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error retrieving analytics", error: err.message });
+  }
+};
+
+export const getAnalyticsDataOverallByUserId = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const analyticsDataOverallById = await getUrlAnalyticsDataOverallByUserId(
+      userId
+    );
+    res.status(200).json(analyticsDataOverallById);
+  } catch (err) {
+    console.error("Overall Analytics Error:", err);
+    res.status(500).json({
+      error: "Failed to retrieve overall analytics",
+      details: err.message,
+    });
   }
 };
