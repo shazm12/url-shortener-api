@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { fnv1aHash, base10ToBase62, parseUserAgent } from "../utils/utils.js";
 import Url from "../models/Url.js";
-import userAgent from "user-agent-parser";
 import UrlClick from "../models/UrlClick.js";
+import moment from "moment";
 
 export const postShortenUrlData = async (req, res) => {
   const { longUrl, customAlias, topic } = req.body;
@@ -63,6 +63,7 @@ export const postShortenUrlData = async (req, res) => {
 export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
   try {
     const { alias } = req.params;
+    console.log(alias);
     const urlObj = await Url.findOne({ alias });
 
     if (!urlObj) {
@@ -82,6 +83,104 @@ export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
     await urlClick.save();
     res.redirect(urlObj?.longUrl);
   } catch (err) {
-    res.status(500).send({ error: err });
+    console.log(err);
+    res.status(500).send({ error: err || "Internal Server Error" });
+  }
+};
+
+export const getAnalyticsData = async (req, res) => {
+  try {
+    const { alias } = req.params;
+
+    const url = await Url.findOne({ alias });
+
+    if (!url) {
+      return res.status(404).json({ message: "URL not found" });
+    }
+
+    const totalClicks = await UrlClick.countDocuments({ urlId: url._id });
+    const uniqueUsers = await UrlClick.aggregate([
+        { $match: { urlId: url._id } },
+        {
+          $group: {
+            _id: "$userIp" 
+          }
+        },
+        { $count: "uniqueUserCount" }
+      ]);
+      
+    // Extract the count (aggregation returns an array)
+    const uniqueUserCount = uniqueUsers[0]?.uniqueUserCount || 0;
+
+    const sevenDaysBack = moment().subtract(7, "days").startOf("day");
+
+    const clicksByDate = await UrlClick.aggregate([
+      {
+        $match: {
+          urlId: url._id,
+          timestamp: { $gte: sevenDaysBack.toDate() },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+          clickCount: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    const osAnalytics = await UrlClick.aggregate([
+      { $match: { urlId: url._id } },
+      {
+        $group: {
+          _id: "$os",
+          uniqueClicks: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$userIp" },
+        },
+      },
+      {
+        $project: {
+          osName: "$_id",
+          uniqueClicks: 1,
+          uniqueUsers: { $size: "$uniqueUsers" },
+        },
+      },
+    ]);
+
+    const deviceAnalytics = await UrlClick.aggregate([
+      { $match: { urlId: url._id } },
+      {
+        $group: {
+          _id: "$device",
+          uniqueClicks: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$userIp" },
+        },
+      },
+      {
+        $project: {
+          deviceName: "$_id",
+          uniqueClicks: 1,
+          uniqueUsers: { $size: "$uniqueUsers" },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      totalClicks,
+      uniqueUsers: uniqueUserCount,
+      clicksByDate: clicksByDate.map((item) => ({
+        date: item._id,
+        clickCount: item.clickCount,
+      })),
+      osType: osAnalytics,
+      deviceType: deviceAnalytics,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving analytics", error: err.message });
   }
 };
