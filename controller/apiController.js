@@ -9,6 +9,7 @@ import {
   getOsAnalyticsArray,
   getTotalClicks,
   getUniqueUsers,
+  getUrlAnalyticsDataByTopic,
 } from "../utils/dbUtils.js";
 
 export const postShortenUrlData = async (req, res) => {
@@ -50,12 +51,12 @@ export const postShortenUrlData = async (req, res) => {
       alias: alias,
       longUrl: longUrl,
       createdAt: new Date().toUTCString(),
-      createdBy: req.user?.id || "12345",
+      createdBy: req.user?.id || "",
       topic: topic || "",
     });
 
     await url.save();
-    res.status(200).send({ url });
+    res.status(201).send({ url });
   } catch (err) {
     if (err.code === 11000) {
       // Duplicate key error
@@ -99,7 +100,6 @@ export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
 export const getAnalyticsDataByAlias = async (req, res) => {
   try {
     const { alias } = req.params;
-
     const url = await Url.findOne({ alias });
 
     if (!url) {
@@ -132,12 +132,39 @@ export const getAnalyticsDataByAlias = async (req, res) => {
 export const getAnalyticsDataOverallByUserId = async (req, res) => {
   try {
     const userId = req.user?._id;
+    if (!userId || userId === "") {
+      res.status(401).json({ error: "Unauthorized! Please Log in" });
+    }
     const analyticsDataOverallById = await getUrlAnalyticsDataOverallByUserId(
       userId
     );
     res.status(200).json(analyticsDataOverallById);
   } catch (err) {
-    console.error("Overall Analytics Error:", err);
+    console.error("Analytics Endpoint Error:", err);
+    res.status(500).json({
+      error: "Failed to retrieve overall analytics",
+      details: err.message,
+    });
+  }
+};
+
+export const getAnalyticsDataByTopic = async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const userId = req.user?._id;
+    if (!topic || topic === "") {
+      res.status(400).json({ error: "Topic not provided" });
+    }
+    if (!userId || userId === "") {
+      res.status(401).json({ error: "Unauthorized! Please Log in" });
+    }
+    const analyticsDataByTopic = await getUrlAnalyticsDataByTopic(
+      topic,
+      userId
+    );
+    res.status(200).json(analyticsDataByTopic);
+  } catch (err) {
+    console.error("Analytics Endpoint Error:", err);
     res.status(500).json({
       error: "Failed to retrieve overall analytics",
       details: err.message,
