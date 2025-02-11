@@ -1,5 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
-import { fnv1aHash, base10ToBase62, parseUserAgent } from "../utils/utils.js";
+import {
+  fnv1aHash,
+  base10ToBase62,
+  parseUserAgent,
+  getshortUrlHostName,
+} from "../utils/utils.js";
 import Url from "../models/Url.js";
 import UrlClick from "../models/UrlClick.js";
 import {
@@ -50,13 +55,16 @@ export const postShortenUrlData = async (req, res) => {
     const url = new Url({
       alias: alias,
       longUrl: longUrl,
-      createdAt: new Date().toUTCString(),
+      timestamp: new Date().toUTCString(),
       createdBy: req.user?.id || "",
       topic: topic || "",
     });
 
     await url.save();
-    res.status(201).send({ url });
+    res.status(201).send({
+      shortUrl: `${getshortUrlHostName(req)}/api/shorten/${alias}`,
+      createdAt: url.timestamp,
+    });
   } catch (err) {
     if (err.code === 11000) {
       // Duplicate key error
@@ -158,9 +166,12 @@ export const getAnalyticsDataByTopic = async (req, res) => {
     if (!userId || userId === "") {
       res.status(401).json({ error: "Unauthorized! Please Log in" });
     }
+
+    const shortUrlHostname = getshortUrlHostName(req);
     const analyticsDataByTopic = await getUrlAnalyticsDataByTopic(
       topic,
-      userId
+      userId,
+      shortUrlHostname
     );
     res.status(200).json(analyticsDataByTopic);
   } catch (err) {
