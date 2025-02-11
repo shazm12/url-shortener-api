@@ -87,7 +87,7 @@ export const getDeviceAnalyticsArray = async (urlId) => {
   return deviceAnalytics;
 };
 
-export const getUrlAnalyticsDataByTopic = async (topic, userId) => {
+export const getUrlAnalyticsDataByTopic = async (topic, userId, shortUrlHostName) => {
   const topicUrls = await Url.find({ topic: topic, createdBy: userId });
   if (!topicUrls.length) {
     return {
@@ -98,6 +98,11 @@ export const getUrlAnalyticsDataByTopic = async (topic, userId) => {
       urls: [],
     };
   }
+
+  if (!shortUrlHostName) {
+    throw new Error("SHORT_URL_HOSTNAME environment variable is not set");
+  }
+
 
   const urlsById = topicUrls.reduce((map, url) => {
     map[url._id] = url;
@@ -124,12 +129,6 @@ export const getUrlAnalyticsDataByTopic = async (topic, userId) => {
       clickCount,
     })
   );
-
-  const shortUrlHostName = process.env.SHORT_URL_HOSTNAME;
-  if (!shortUrlHostName) {
-    throw new Error("SHORT_URL_HOSTNAME environment variable is not set");
-  }
-
 
   const urlsClicksObj = allClicks.reduce((acc, click) => {
     const urlObj = urlsById[click.urlId];
