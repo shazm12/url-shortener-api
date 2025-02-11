@@ -1,4 +1,4 @@
-import Url from '../models/Url.js';
+import Url from "../models/Url.js";
 import UrlClick from "../models/UrlClick.js";
 import moment from "moment";
 
@@ -87,8 +87,91 @@ export const getDeviceAnalyticsArray = async (urlId) => {
   return deviceAnalytics;
 };
 
+export const getUrlAnalyticsDataByTopic = async (topic, userId) => {
+  const topicUrls = await Url.find({ topic: topic, createdBy: userId });
+  if (!topicUrls.length) {
+    return {
+      totalUrls: 0,
+      totalClicks: 0,
+      uniqueUsers: 0,
+      clicksByDate: [],
+      urls: [],
+    };
+  }
+
+  const urlsById = topicUrls.reduce((map, url) => {
+    map[url._id] = url;
+    return map;
+  }, {});
+
+  const urlIds = topicUrls.map((url) => url._id);
+  const allClicks = await UrlClick.find({ urlId: { $in: urlIds } });
+
+  const totalUrls = topicUrls.length;
+  const totalClicks = allClicks.length;
+  const uniqueUsers = new Set(allClicks.map((click) => click.userIp)).size;
+
+  // Process clicks by date
+  const clicksByDate = allClicks.reduce((acc, click) => {
+    const date = click.timestamp.toISOString().split("T")[0];
+    acc[date] = (acc[date] || 0) + 1;
+    return acc;
+  }, {});
+
+  const clicksByDateArray = Object.entries(clicksByDate).map(
+    ([date, clickCount]) => ({
+      date,
+      clickCount,
+    })
+  );
+
+  const shortUrlHostName = process.env.SHORT_URL_HOSTNAME;
+  if (!shortUrlHostName) {
+    throw new Error("SHORT_URL_HOSTNAME environment variable is not set");
+  }
+
+
+  const urlsClicksObj = allClicks.reduce((acc, click) => {
+    const urlObj = urlsById[click.urlId];
+    if (!urlObj) {
+      console.error(`No URL found for urlId: ${click.urlId}`);
+      return acc;
+    }
+
+    const url = `${shortUrlHostName}/${urlObj.alias}`;
+    if (!acc[url]) {
+      acc[url] = {
+        totalClicks: 0,
+        uniqueUsers: new Set(),
+        urlId: click.urlId,
+        alias: urlObj.alias,
+      };
+    }
+
+    acc[url].totalClicks++;
+    acc[url].uniqueUsers.add(click.userIp);
+    return acc;
+  }, {});
+
+  const urlsArrayFinal = Object.entries(urlsClicksObj).map(
+    ([shortUrl, data]) => ({
+      shortUrl,
+      totalClicks: data.totalClicks,
+      uniqueUsers: data.uniqueUsers.size,
+    })
+  );
+
+  return {
+    totalUrls,
+    totalClicks,
+    uniqueUsers,
+    clicksByDate: clicksByDateArray,
+    urls: urlsArrayFinal,
+  };
+};
+
 export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
-  const userUrls = await Url.find({createdBy: userId});
+  const userUrls = await Url.find({ createdBy: userId });
   const urlIds = userUrls.map((url) => url._id);
 
   const allClicks = await UrlClick.find({ urlId: { $in: urlIds } });
@@ -99,14 +182,12 @@ export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
 
   const uniqueUsers = new Set(allClicks.map((click) => click.userIp)).size;
 
-  // Process clicks by date
   const clicksByDate = allClicks.reduce((acc, click) => {
     const date = click.timestamp.toISOString().split("T")[0];
     acc[date] = (acc[date] || 0) + 1;
     return acc;
   }, {});
 
-  // Transform clicksByDate into required array format
   const clicksByDateArray = Object.entries(clicksByDate).map(
     ([date, clickCount]) => ({
       date,
@@ -114,7 +195,6 @@ export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
     })
   );
 
-  // Process OS analytics
   const osCounts = allClicks.reduce((acc, click) => {
     if (!acc[click.os]) {
       acc[click.os] = {
@@ -128,16 +208,13 @@ export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
     return acc;
   }, {});
 
-  // Transform OS data into required format
   const osType = Object.entries(osCounts).map(([osName, data]) => ({
     osName,
     uniqueClicks: data.uniqueClicks,
     uniqueUsers: data.uniqueUsers.size,
   }));
 
-  // Process device analytics
   const deviceCounts = allClicks.reduce((acc, click) => {
-    // Initialize device entry if it doesn't exist
     if (!acc[click.device]) {
       acc[click.device] = {
         uniqueClicks: 0,
@@ -150,14 +227,13 @@ export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
     return acc;
   }, {});
 
-  // Transform device data into required format
   const deviceType = Object.entries(deviceCounts).map(([deviceName, data]) => ({
     deviceName,
     uniqueClicks: data.uniqueClicks,
     uniqueUsers: data.uniqueUsers.size,
   }));
 
-  const urlClickAnalyticsDataOverallObj = {
+  return {
     totalUrls,
     totalClicks,
     uniqueUsers,
@@ -165,6 +241,4 @@ export const getUrlAnalyticsDataOverallByUserId = async (userId) => {
     osType,
     deviceType,
   };
-
-  return urlClickAnalyticsDataOverallObj;
 };
