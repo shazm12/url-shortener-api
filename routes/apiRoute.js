@@ -10,6 +10,37 @@ import {
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * '/api/shorten':
+ *  post:
+ *     tags:
+ *     - API Controller
+ *     summary: Post Long Url to get Shorten Url
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - longUrl
+ *            properties:
+ *              longUrl:
+ *                type: string
+ *                description: The long URL to be shortened
+ *              customAlias:
+ *                type: string
+ *                description: (Optional) Custom alias for the shortened URL
+ *              topic:
+ *                type: string
+ *                description: (Optional) Topic associated with the shortened URL
+ *     responses:
+ *      201:
+ *        description: Created
+ *      500:
+ *        description: Server Error
+ */
 router.post("/shorten", checkAuthenticated, postShortenUrlData);
 
 router.get("/shorten/:alias", getShortenUrlDataAndRedirectToLongUrl);

@@ -10,7 +10,8 @@ import authRoute from "./routes/authRoute.js";
 import apiRoute from "./routes/apiRoute.js";
 import connectDB from "./utils/db.js";
 import helmet from "helmet";
-
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./swagger.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use("/api", apiRoute);
 app.get("/home", checkAuthenticated, (req, res) => {
   res.send(`<h1>Welcome to URL Shortener, ${req?.user?.name}!</h1> \n</p>`);
 });
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // DB Connection
 connectDB();
