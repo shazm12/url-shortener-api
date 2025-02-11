@@ -34,3 +34,6 @@ export function parseUserAgent(userAgentString) {
     device: parsedUA.device.type || "desktop",
   };
 }
+
+
+export const getshortUrlHostName = (req) => `${req.protocol}://${req.get('host')}`;
