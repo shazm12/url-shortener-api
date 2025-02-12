@@ -16,6 +16,7 @@ import {
   getUniqueUsers,
   getUrlAnalyticsDataByTopic,
 } from "../utils/dbUtils.js";
+import geoip from"geoip-lite";
 
 export const postShortenUrlData = async (req, res) => {
   const { longUrl, customAlias, topic } = req.body;
@@ -87,12 +88,19 @@ export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
 
     const userAgent = parseUserAgent(req.headers["user-agent"]);
 
+   
+    const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+    const geoData = geoip.lookup(ip);
+
     const urlClick = new UrlClick({
       urlId: urlObj._id,
       userIp: req.ip,
       userAgent: req.headers["user-agent"],
       os: userAgent?.os,
       device: userAgent?.device,
+      country: geoData?.country || "",
+      city: geoData?.city || "",
     });
 
     await urlClick.save();
