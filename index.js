@@ -48,4 +48,4 @@ connectDB();
 
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port: ${port}\nAPI Docs available at: http://localhost:300/api-docs`));
+app.listen(port, () => console.log(`Server running on port: ${port}\nAPI Docs available at: http://localhost:3000/api-docs`));
