@@ -137,7 +137,7 @@ export const getUrlAnalyticsDataByTopic = async (topic, userId, shortUrlHostName
       return acc;
     }
 
-    const url = `${shortUrlHostName}/${urlObj.alias}`;
+    const url = `${shortUrlHostName}/api/shorten/${urlObj.alias}`;
     if (!acc[url]) {
       acc[url] = {
         totalClicks: 0,
