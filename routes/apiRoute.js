@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuthenticated, checkResourceOwnership } from "../auth/authMiddleware.js";
+import { checkAuthenticated, checkResourceOwnership } from "../middleware/authMiddleware.js";
 import {
   getAnalyticsDataByAlias,
   getAnalyticsDataByTopic,
@@ -7,6 +7,7 @@ import {
   getShortenUrlDataAndRedirectToLongUrl,
   postShortenUrlData,
 } from "../controller/apiController.js";
+import { apiLimiter } from "../middleware/limiterMiddleware.js";
 
 const router = express.Router();
 
@@ -59,7 +60,7 @@ const router = express.Router();
  *       500:
  *         description: Server Error
  */
-router.post("/shorten", checkAuthenticated, postShortenUrlData);
+router.post("/shorten", checkAuthenticated, apiLimiter, postShortenUrlData);
 
 
 /**
