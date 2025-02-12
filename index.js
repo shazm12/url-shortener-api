@@ -5,7 +5,7 @@ import passport from "passport";
 import session from "express-session";
 import dotenv from "dotenv";
 import "./auth/passport.js"; // Ensure ES module compatibility
-import { checkAuthenticated } from "./auth/authMiddleware.js";
+import { checkAuthenticated } from "./middleware/authMiddleware.js";
 import authRoute from "./routes/authRoute.js";
 import apiRoute from "./routes/apiRoute.js";
 import connectDB from "./utils/db.js";
