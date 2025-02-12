@@ -3,9 +3,9 @@ import swaggerJSDoc from "swagger-jsdoc";
 const swaggerDefinition = {
 openapi:"3.0.0",
 info: {
-title:"My API",
+title:"URL Shortener API",
 version:"1.0.0",
-description:"My API Description",
+description:"API to get Shorten URL for your Long URLs along with Analytics for your Short URL- Number of Clicks,Unique User and more...",
 },
 };
 
