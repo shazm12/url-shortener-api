@@ -13,6 +13,7 @@ import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
 import { connectRedis } from "./utils/redis.js";
+import serverless from "serverless-http";
 
 dotenv.config();
 
@@ -52,4 +53,12 @@ connectRedis();
 
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port: ${port}\nAPI Docs available at: http://localhost:3000/api-docs`));
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`Server running on port: ${port}\nAPI Docs available at: http://localhost:3000/api-docs`));
+}
+
+export default app;
+
+export const handler = serverless(app);
