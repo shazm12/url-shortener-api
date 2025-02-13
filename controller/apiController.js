@@ -17,6 +17,8 @@ import {
   getUrlAnalyticsDataByTopic,
 } from "../utils/dbUtils.js";
 import geoip from"geoip-lite";
+import redisClient from "../utils/redis.js";
+import { CACHE_EXPIRATION } from "../utils/constants.js";
 
 export const postShortenUrlData = async (req, res) => {
   const { longUrl, customAlias, topic } = req.body;
@@ -80,19 +82,32 @@ export const postShortenUrlData = async (req, res) => {
 export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
   try {
     const { alias } = req.params;
-    const urlObj = await Url.findOne({ alias });
+    
+    const cachedUrl = await redisClient.get(`url:${alias}`);
+    let urlObj;
 
-    if (!urlObj) {
-      return res.status(404).json({ error: "URL not found" });
+    if (cachedUrl) {
+      urlObj = JSON.parse(cachedUrl);
+    } else {
+      urlObj = await Url.findOne({ alias });
+      
+      if (!urlObj) {
+        return res.status(404).json({ error: "URL not found" });
+      }
+      
+      await redisClient.setEx(
+        `url:${alias}`,
+        CACHE_EXPIRATION,
+        JSON.stringify(urlObj)
+      );
     }
 
+
     const userAgent = parseUserAgent(req.headers["user-agent"]);
-
-   
     const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
     const geoData = geoip.lookup(ip);
 
+    // Store analytics asynchronously to not block the redirect
     const urlClick = new UrlClick({
       urlId: urlObj._id,
       userIp: req.ip,
@@ -103,13 +118,16 @@ export const getShortenUrlDataAndRedirectToLongUrl = async (req, res) => {
       city: geoData?.city || "",
     });
 
-    await urlClick.save();
+    // Not awaiting this to speed up response time and let this happen in background
+    urlClick.save().catch(err => console.error('Error saving click analytics:', err));
     res.redirect(urlObj?.longUrl);
+
   } catch (err) {
-    console.log(err);
-    res
-      .status(500)
-      .send({ error: "Failed to get Url Data", message: err.message });
+    console.error('Error in URL redirect:', err);
+    res.status(500).send({ 
+      error: "Failed to get Url Data", 
+      message: err.message 
+    });
   }
 };
 
