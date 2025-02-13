@@ -12,6 +12,7 @@ import connectDB from "./utils/db.js";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
+import { connectRedis } from "./utils/redis.js";
 
 dotenv.config();
 
@@ -44,6 +45,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // DB Connection
 connectDB();
+
+//Redis Connection
+connectRedis();
 
 
 
