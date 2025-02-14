@@ -16,13 +16,13 @@
 				"header": [
 					{
 						"key": "Cookie",
-						"value": "connect.sid={{COOKIE_SESSION}}",
+						"value": "sessionId={{COOKIE_SESSION}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"longUrl\": \"https://www.geeksforgeeks.org/express-js/\",\r\n    \"customAlias\": \"\",\r\n    \"topic\": \"\"\r\n}",
+					"raw": "{\r\n    \"longUrl\": \"https://github.com/\",\r\n    \"customAlias\": \"\",\r\n    \"topic\": \"\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -69,7 +69,7 @@
 						"type": "text"
 					}
 				],
-				"url": "{{API_URL}}/api/analytics/97q0pvf"
+				"url": "{{API_URL}}/api/analytics/1zqdaye"
 			},
 			"response": []
 		},
@@ -139,7 +139,7 @@
 		},
 		{
 			"key": "COOKIE_SESSION",
-			"value": "",
+			"value": "s%3AEEd8DvCn9muxLVpzEOu2lw1snh5w87qs.7PmlzZXWfYsxEeCi7XLzrbmhsoY1L008MCq4QGCCcWg",
 			"type": "string"
 		}
 	]
