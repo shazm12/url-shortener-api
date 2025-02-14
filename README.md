@@ -69,12 +69,6 @@ This project focuses on creating a scalable Custom URL Shortener API with the fo
 By following these steps, you can easily test all available endpoints and ensure smooth functionality! 🎉
 
 
-# Challenges faced and solutions implemented
-
-
-
----
-
 # Overview of Implemented Features
 
 ## 🔒 User Authentication
