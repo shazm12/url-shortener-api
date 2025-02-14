@@ -145,6 +145,18 @@ Tests ensure the controllers behave correctly under various scenarios.
 
 ---
 
+## 📘 API Documentation
+
+# Swagger and OpenAPI Specification
+
+Implemented API documentation using Swagger and OpenAPI specifications to ensure comprehensive and easy-to-navigate documentation for all endpoints.
+
+- **Swagger UI Integration:** A Swagger UI interface is provided, allowing users to explore and test API endpoints interactively.
+
+- **OpenAPI Standards:** The OpenAPI specification ensures that all endpoints are well-defined, including request parameters, response structures, and authentication requirements.
+
+---
+
 ## ⚠️ Challenges and Solutions
 
 1. **Google Sign In mechanism:** I initially took sometime to figure out how can I efficiently do Google Sign In with just a Node Express API and maintain tokens for autorization. I finally then decided to go with the combination of passport.js with implementing Google Strtegy and then using express sessions with Mongo Store to keep persistent sessions in my Mongo DB database.
@@ -159,10 +171,10 @@ Tests ensure the controllers behave correctly under various scenarios.
 
 ## 🌐 Deployment URL
 
-Here is the live Deployed URL of the API below:
+Here is the live Deployed URL and API Documentation URL for the API below:
 
 [**Shortener URL API Live URL**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/)
-
+[""API Docs**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/api-docs/)
 
 ## 📞 Contact
 
