@@ -4,7 +4,7 @@ import cors from "cors";
 import passport from "passport";
 import session from "express-session";
 import dotenv from "dotenv";
-import "./auth/passport.js"; // Ensure ES module compatibility
+import "./auth/passport.js"; 
 import { checkAuthenticated } from "./middleware/authMiddleware.js";
 import authRoute from "./routes/authRoute.js";
 import apiRoute from "./routes/apiRoute.js";
@@ -14,18 +14,35 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
 import { connectRedis } from "./utils/redis.js";
 import serverless from "serverless-http";
+import MongoStore from "connect-mongo";
 
 dotenv.config();
 
 const app = express();
 
-// Session Middleware
+const isProduction = process.env.NODE_ENV === 'production';
+
+
 app.use(
   session({
-    secret: "secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
+    saveUninitialized: false, 
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: 'sessions', 
+      ttl: 7 * 24 * 60 * 60, 
+      autoRemove: 'native',
+      touchAfter: 24 * 3600 // Only update sessions once per 24 hours unless data changes
+    }),
+    cookie: { 
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: isProduction,
+      httpOnly: true,
+      sameSite: isProduction ? 'none' : 'lax'  
+    },
+    proxy: isProduction,
+    name: 'sessionId'
   })
 );
 
