@@ -147,7 +147,7 @@ Tests ensure the controllers behave correctly under various scenarios.
 
 ## 📘 API Documentation
 
-# Swagger and OpenAPI Specification
+### Swagger and OpenAPI Specification
 
 Implemented API documentation using Swagger and OpenAPI specifications to ensure comprehensive and easy-to-navigate documentation for all endpoints.
 
