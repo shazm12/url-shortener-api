@@ -56,6 +56,7 @@ This project focuses on creating a scalable Custom URL Shortener API with the fo
    - Log in with your account credentials.
    - If successful, you will be redirected to the welcome page.
    - You should see two cookies: `connect.sid` and `sessionId`. If not, refresh the page.
+![image](https://github.com/user-attachments/assets/6e43c7c3-f688-46ab-a649-06521c8b9635)
 
 5. **Copy Session ID**:
    - Select the value of `sessionId`, right-click, and choose "Edit Value."
