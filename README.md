@@ -96,7 +96,7 @@ The database is configured for performance and stability:
 The URL shortening algorithm uses **Base62 encoding** with a counter-based approach:
 
 - **Base62 Encoding**: Short (7-character) aliases are generated for URLs.
-- **Efficient Hashing**: UUIDv4 values are hashed using FNV-1a to ensure unique aliases.
+- **Efficient Hashing**: UUIDv4 values are hashed using FNV-1a to ensure unique aliases. This is an alternative approach of using counters and storing in DB.
 
 This approach ensures short, user-friendly links without performance bottlenecks.
 
