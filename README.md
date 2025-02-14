@@ -159,7 +159,9 @@ Tests ensure the controllers behave correctly under various scenarios.
 
 ## 🌐 Deployment URL
 
-[**[Shortener URL API Live URL]**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/)
+Here is the live Deployed URL of the API below:
+
+[**Shortener URL API Live URL**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/)
 
 
 ## 📞 Contact
