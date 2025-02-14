@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     environment:
@@ -10,7 +12,6 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - MONGO_URI=${MONGO_URI}
       - SHORT_URL_HOSTNAME=${SHORT_URL_HOSTNAME}
-      # Override the REDIS_URL from .env to use local Redis
       - REDIS_URL=redis://redis:6379
     env_file:
       - .env
@@ -19,7 +20,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm start
+    command: npm run dev
 
   redis:
     image: redis:alpine
