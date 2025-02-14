@@ -56,6 +56,7 @@ This project focuses on creating a scalable Custom URL Shortener API with the fo
    - Log in with your account credentials.
    - If successful, you will be redirected to the welcome page.
    - You should see two cookies: `connect.sid` and `sessionId`. If not, refresh the page.
+![image](https://github.com/user-attachments/assets/6e43c7c3-f688-46ab-a649-06521c8b9635)
 
 5. **Copy Session ID**:
    - Select the value of `sessionId`, right-click, and choose "Edit Value."
@@ -68,70 +69,7 @@ This project focuses on creating a scalable Custom URL Shortener API with the fo
 By following these steps, you can easily test all available endpoints and ensure smooth functionality! 🎉
 
 
-# Challenges faced and solutions implemented
-
-
-# Custom URL Shortener API
-
-## 🚀 Overview
-This project builds a **scalable Custom URL Shortener API** with features designed for security, performance, and analytics:
-
-- **🔒 User Authentication**: Google Sign-In for secure, seamless logins.
-- **✂️ Short URL Generation**: Simplifies long URLs for easy sharing.
-- **📊 Advanced Analytics**: Track individual link performance and overall metrics.
-- **📂 Link Grouping**: Organize links by categories (e.g., acquisition, activation, retention).
-- **⏱️ Rate Limiting**: Prevent excessive requests to maintain system stability.
-
----
-
-## 💻 How to Run the Project Locally with Docker Compose
-
-1. **Ensure Prerequisites**: Install Docker and Docker Compose.
-
-2. **Clone the Repository**:
-   ```bash
-   git clone <your-repo-url>
-   cd <your-repo-directory>
-   ```
-
-3. **Start the Development Environment**:
-   ```bash
-   docker-compose up
-   ```
-
-4. **Access the Application**: Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-5. **Shut Down the Environment**:
-   ```bash
-   docker-compose down
-   ```
-
-### 📝 Important Notes
-
-- **Environment Variables**: Ensure all required variables are configured in the `.env` file.
-- **Troubleshooting**: Check logs if issues arise:
-  ```bash
-  docker-compose logs
-  ```
-
----
-
-## 📮 Testing the APIs with Postman
-
-1. **Import Postman Collection**: Download the collection from the repository and import it into Postman.
-
-2. **Set API Variables**: Under the "Variables" tab, set `API_URL` to your environment (e.g., Dev or Prod).
-
-3. **Obtain Cookie Session ID**:
-   - Navigate to `/auth/login` and log in.
-   - Use browser DevTools to access cookies (DevTools > Applications > Storage > Cookies).
-   - Locate `sessionId` and copy its value.
-
-4. **Set Cookie in Postman**: Paste the `sessionId` value into the `COOKIE_SESSION` variable.
-
-5. **Test Endpoints**: Use the collection to test all available APIs.
-
----
+# Overview of Implemented Features
 
 ## 🔒 User Authentication
 
@@ -158,7 +96,7 @@ The database is configured for performance and stability:
 The URL shortening algorithm uses **Base62 encoding** with a counter-based approach:
 
 - **Base62 Encoding**: Short (7-character) aliases are generated for URLs.
-- **Efficient Hashing**: UUIDv4 values are hashed using FNV-1a to ensure unique aliases.
+- **Efficient Hashing**: UUIDv4 values are hashed using FNV-1a to ensure unique aliases. This is an alternative approach of using counters and storing in DB.
 
 This approach ensures short, user-friendly links without performance bottlenecks.
 
