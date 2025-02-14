@@ -174,7 +174,7 @@ Implemented API documentation using Swagger and OpenAPI specifications to ensure
 Here is the live Deployed URL and API Documentation URL for the API below:
 
 [**Shortener URL API Live URL**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/)
-[""API Docs**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/api-docs/)
+[**API Docs**](https://aoniguj7nyatv4shraoboufl2q0nnydb.lambda-url.eu-north-1.on.aws/api-docs/)
 
 ## 📞 Contact
 
