@@ -1,12 +1,11 @@
 import express from "express";
 import passport from "passport";
-import { authLimiter } from "../middleware/limiterMiddleware.js";
+
 
 const router = express.Router();
 
 router.get(
   "/google",
-  authLimiter,
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
@@ -28,13 +27,13 @@ router.get(
  */
 
 // Redirect /login to Google authentication
-router.get("/login", authLimiter, (req, res) => {
+router.get("/login", (req, res) => {
   res.redirect("/auth/google");
 });
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { successRedirect: "/home" }),
+  passport.authenticate("google", { successRedirect: "/home", keepSessionInfo: true  }),
   (req, res) => {
     res.json({ token: req.user.token });
   }
